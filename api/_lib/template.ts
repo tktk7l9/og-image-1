@@ -13,15 +13,15 @@ const mono = readFileSync(`${__dirname}/../_fonts/Vera-Mono.woff2`).toString('ba
 
 function getCss(theme: string, fontSize: string) {
     let background = 'white';
-    let foreground = 'black';
-    let radial = 'lightgray';
+    let foreground = 'black'; 
 
     if (theme === 'dark') {
         background = 'black';
         foreground = 'white';
-        radial = 'dimgray';
     }
     return `
+    @import url('https://fonts.googleapis.com/css?family=M+PLUS+1p');
+
     @font-face {
         font-family: 'Inter';
         font-style:  normal;
@@ -45,18 +45,17 @@ function getCss(theme: string, fontSize: string) {
 
     body {
         background: ${background};
-        background-image: radial-gradient(circle at 25px 25px, ${radial} 2%, transparent 0%), radial-gradient(circle at 75px 75px, ${radial} 2%, transparent 0%);
-        background-size: 100px 100px;
         height: 100vh;
         display: flex;
         text-align: center;
         align-items: center;
         justify-content: center;
+        padding: 12px;
     }
 
     code {
         color: #D400FF;
-        font-family: 'Vera';
+        font-family: 'Vera', 'M PLUS 1p';
         white-space: pre-wrap;
         letter-spacing: -5px;
     }
@@ -67,14 +66,20 @@ function getCss(theme: string, fontSize: string) {
 
     .logo-wrapper {
         display: flex;
+        width: auto;
+        height: 400px;
         align-items: center;
         align-content: center;
         justify-content: center;
         justify-items: center;
+        margin: -80px auto -100px;
     }
 
     .logo {
-        margin: 0 75px;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        margin-bottom: -20px;
     }
 
     .plus {
@@ -84,7 +89,7 @@ function getCss(theme: string, fontSize: string) {
     }
 
     .spacer {
-        margin: 150px;
+        margin: 75px;
     }
 
     .emoji {
@@ -95,16 +100,17 @@ function getCss(theme: string, fontSize: string) {
     }
     
     .heading {
-        font-family: 'Inter', sans-serif;
+        font-family: 'M PLUS 1p', 'Inter', sans-serif;
         font-size: ${sanitizeHtml(fontSize)};
         font-style: normal;
+        font-weight: 400;
         color: ${foreground};
         line-height: 1.8;
     }`;
 }
 
 export function getHtml(parsedReq: ParsedRequest) {
-    const { text, theme, md, fontSize, images, widths, heights } = parsedReq;
+    const { text, theme = "light", md = 0, fontSize = "60px"} = parsedReq;
     return `<!DOCTYPE html>
 <html>
     <meta charset="utf-8">
@@ -114,33 +120,22 @@ export function getHtml(parsedReq: ParsedRequest) {
         ${getCss(theme, fontSize)}
     </style>
     <body>
-        <div>
-            <div class="spacer">
-            <div class="logo-wrapper">
-                ${images.map((img, i) =>
-                    getPlusSign(i) + getImage(img, widths[i], heights[i])
-                ).join('')}
-            </div>
-            <div class="spacer">
-            <div class="heading">${emojify(
-                md ? marked(text) : sanitizeHtml(text)
-            )}
-            </div>
+    <div>
+
+        <div class="logo-wrapper">
+            <img 
+                class="logo"
+                alt="Generated Image"
+                src="https://images.microcms-assets.io/protected/ap-northeast-1:12587faf-e507-4a34-8fbf-d773ad9ed641/service/tktk7l9/media/asakusashi_dance.jpg"
+
+            />
+        </div>
+        <div class="heading">${emojify(
+            md ? marked(text) : sanitizeHtml(text)
+        )}
+        </div>
         </div>
     </body>
 </html>`;
 }
 
-function getImage(src: string, width ='auto', height = '225') {
-    return `<img
-        class="logo"
-        alt="Generated Image"
-        src="${sanitizeHtml(src)}"
-        width="${sanitizeHtml(width)}"
-        height="${sanitizeHtml(height)}"
-    />`
-}
-
-function getPlusSign(i: number) {
-    return i === 0 ? '' : '<div class="plus">+</div>';
-}
